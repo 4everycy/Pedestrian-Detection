@@ -1,0 +1,13 @@
+SET PYTHONPATH=%cd%;%cd%\\slim
+
+python create_tf_record.py --data_dir=%cd% --output_dir=%cd%
+
+python object_detection/train.py --logtostderr --pipeline_config_path=pipeline.config --train_dir=training
+
+python object_detection/export_inference_graph.py --input_type=image_tensor --pipeline_config_path=pipeline.config --trained_checkpoint_prefix=training/model.ckpt-0 --output_directory=output
+
+python object_detection/eval.py --logtostderr --checkpoint_dir=output_0 --eval_dir=eval --pipeline_config_path=pipeline.config
+
+tensorboard --logdir=eval --host=127.0.0.1
+
+python object_detection/inference.py --input_dir=test_images --output_dir=test_output --label_map=annotations/label_map.pbtxt  --frozen_graph=output_666/frozen_inference_graph.pb --num_output_classes=1 --n_jobs=1 --delay=0
